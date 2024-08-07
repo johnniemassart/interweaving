@@ -1,11 +1,11 @@
 # user input file name, number only
-file_name = input("Enter file number (1-5 only): ")
+file_name = input("Please enter the file name (with extension): ")
 
 
 # function to read file, store in list
 def read_file(file_name):
     content = []
-    with open(f"../files/input{file_name}.txt", "r") as f:
+    with open(f"../files/{file_name}", "r") as f:
         for line in f:
             content.append(line.replace("\n", ""))
     return content
@@ -62,7 +62,7 @@ def ignore_characters(s, x, y):
 
 
 # determine if interweaving is possible by utilizing dynamic programming - tabulation
-def canInterweave(s, x, y):
+def can_interweave(s, x, y, rechecked):
     if valid_length(s, x, y) == False:
         return f"not possible"
     if ignore_characters(s, x, y) == False:
@@ -80,22 +80,40 @@ def canInterweave(s, x, y):
     i = 0
     while i < len(s):
         if table[i] == True:
-            if x[x_itr] == s[i]:
-                table[i + len(s[i])] = True
-                x_table.append(i)
-                x_rep += s[i]
-                if x_itr < len(x) - 1:
-                    x_itr += 1
-                elif x_itr == len(x) - 1:
-                    x_itr = 0
-            elif y[y_itr] == s[i]:
-                table[i + len(s[i])] = True
-                y_table.append(i)
-                y_rep += s[i]
-                if y_itr < len(y) - 1:
-                    y_itr += 1
-                elif y_itr == len(y) - 1:
-                    y_itr = 0
+            if rechecked == False:
+                if x[x_itr] == s[i]:
+                    table[i + len(s[i])] = True
+                    x_table.append(i)
+                    x_rep += s[i]
+                    if x_itr < len(x) - 1:
+                        x_itr += 1
+                    elif x_itr == len(x) - 1:
+                        x_itr = 0
+                elif y[y_itr] == s[i]:
+                    table[i + len(s[i])] = True
+                    y_table.append(i)
+                    y_rep += s[i]
+                    if y_itr < len(y) - 1:
+                        y_itr += 1
+                    elif y_itr == len(y) - 1:
+                        y_itr = 0
+            else:
+                if y[y_itr] == s[i]:
+                    table[i + len(s[i])] = True
+                    y_table.append(i)
+                    y_rep += s[i]
+                    if y_itr < len(y) - 1:
+                        y_itr += 1
+                    elif y_itr == len(y) - 1:
+                        y_itr = 0
+                elif x[x_itr] == s[i]:
+                    table[i + len(s[i])] = True
+                    x_table.append(i)
+                    x_rep += s[i]
+                    if x_itr < len(x) - 1:
+                        x_itr += 1
+                    elif x_itr == len(x) - 1:
+                        x_itr = 0
             i += 1
         else:
             break
@@ -111,4 +129,13 @@ def canInterweave(s, x, y):
         return f"not possible"
 
 
-print(canInterweave(s, x, y))
+# check, recheck function for partially interweaving results
+# determine if switching x, y order leads to different result
+rechecked = False
+if "partially" in can_interweave(s, x, y, rechecked):
+    if "not possible" in can_interweave(s, x, y, True):
+        print(can_interweave(s, x, y, False))
+    else:
+        print(can_interweave(s, x, y, True))
+else:
+    print(can_interweave(s, x, y, False))
